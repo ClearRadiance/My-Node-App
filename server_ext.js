@@ -30,6 +30,7 @@ const MIME_TYPES = {
     '.json': 'application/json',
     '.ico': 'image/x-icon'
 };
+const messages = ["server booted up successfully"];
 
 http.createServer((req, res) => {
     const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
@@ -55,8 +56,6 @@ http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify(stats));
     }
-
-    // Route Normalization: Map root to index.html & append .html to extensionless routes
     let normalizedPath = reqPath === '/' ? '/index.html' : reqPath;
     if (!path.extname(normalizedPath)) {
         normalizedPath += '.html';
@@ -83,6 +82,16 @@ http.createServer((req, res) => {
                 console.log(`[VISIT #${visitorCount}] Connection from: ${req.socket.remoteAddress}`);
             }
 
+            const newMsg = parsedUrl.searchParams.get('msg');
+            if (newMsg) {
+                messages.push(newMsg);
+                res.writeHead(302, { Location: '/shoutbox.html' });
+                return res.end();
+            }
+            const messageListHTML = messages.map(msg => `<li>${msg}</li>`).join('');
+
+
+
             // Server-Driven Theme Handling
             const theme = parsedUrl.searchParams.get('theme') === 'dark' ? 'dark-mode' : 'light-mode';
 
@@ -91,7 +100,8 @@ http.createServer((req, res) => {
                 .replace('{{COUNT}}', String(visitorCount))
                 .replace('{{THEME_CLASS}}', theme)
                 .replace('{{FORTUNE}}', randomFortune)
-                .replace('{{ANIMAL}}', randomAnimal);
+                .replace('{{ANIMAL}}', randomAnimal)
+                .replace('{{MESSAGES}}', messageListHTML);
         }
 
         console.log(`[REQUEST] ${req.socket.remoteAddress} accessed ${normalizedPath}`);
