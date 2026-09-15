@@ -5,5 +5,8 @@
     "main": "server_ext.js",
     "scripts": {
         "start": "node server_ext.js"
+    },
+    "dependencies": {
+        "mime-types": "^3.0.2"
     }
 }

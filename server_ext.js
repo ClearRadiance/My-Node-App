@@ -1,7 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-
+const mime = require('mime-types');
 const PORT = 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
@@ -18,24 +18,29 @@ const animals = ["Bats aren't blind and actually have good eyesight. The myth th
     "The animal kingdom’s fastest rodent isn’t a rat or a squirrel – it’s the Patagonian mara, a unique species native to Argentina and Patagonia. With rabbit-like ears, powerful hind legs and impressive top speeds, this mammal thrives in the arid grasslands and scrublands of Patagonia."
 ];
 
-const MIME_TYPES = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'text/javascript',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.gif': 'image/gif',
-    '.svg': 'image/svg+xml',
-    '.mp4': 'video/mp4',
-    '.json': 'application/json',
-    '.ico': 'image/x-icon'
-};
+// const MIME_TYPES = {
+//     '.html': 'text/html',
+//     '.css': 'text/css',
+//     '.js': 'text/javascript',
+//     '.png': 'image/png',
+//     '.jpg': 'image/jpeg',
+//     '.gif': 'image/gif',
+//     '.svg': 'image/svg+xml',
+//     '.mp4': 'video/mp4',
+//     '.json': 'application/json',
+//     '.ico': 'image/x-icon'
+// };
 const messages = ["server booted up successfully"];
 
 http.createServer((req, res) => {
     const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     const reqPath = parsedUrl.pathname;
+    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const logline = `[${new Date().toISOString()}] IP: ${clientIp} Method: ${req.method} Path: ${reqPath}\n `;
 
+    fs.appendFile(path.join(__dirname, 'server.log'), logline, (err) => {
+        if (err) console.error('Log write failed', err);
+    });
 
     if (reqPath === '/coffee') {
         res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -63,7 +68,7 @@ http.createServer((req, res) => {
 
     const filePath = path.join(PUBLIC_DIR, normalizedPath);
     const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'text/plain';
+    const contentType = mime.lookup(filePath) || 'text/plain';
 
     fs.readFile(filePath, (err, content) => {
         if (err) {
@@ -83,6 +88,7 @@ http.createServer((req, res) => {
             }
 
             const newMsg = parsedUrl.searchParams.get('msg');
+            const DATA_FILE = path.join(__dirname, 'messages.json');
             if (newMsg) {
                 messages.push(newMsg);
                 res.writeHead(302, { Location: '/shoutbox.html' });
