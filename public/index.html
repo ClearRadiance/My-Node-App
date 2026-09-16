@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="{{THEME_CLASS}}">
+
+    <nav>
+        <a href="/">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/about.html">About</a>
+        <a href="/shoutbox.html">Shoutbox</a>
+        <a href="/?theme=dark">Dark Theme</a>
+        <a href="/?theme=light">Light Theme</a>
+        <a href="/api/stats">Stats</a>
+        <a href="/roll">Roll Dice</a>
+        <a href="/coffee">Coffee</a>
+    </nav>
+
+    <main class="home">
+
+        <h1>Akira's server</h1>
+        <p>Welcome to My Node.js Server</p>
+
+        <p>
+            <strong>Total Home Page Visits:</strong> {{COUNT}}
+        </p>
+
+        <!-- SLIDESHOW -->
+        <img id="picture" src="picture1.jpg" alt="Slideshow image">
+
+
+    </main>
+
+    <script>
+        let pictures = ["picture1.jpg", "picture2.jpg", "picture3.jpg"];
+        let i = 0;
+
+        setInterval(() => {
+            i++;
+
+            if (i == pictures.length) {
+                i = 0;
+            }
+
+            document.getElementById("picture").src = pictures[i];
+
+        }, 3000);
+    </script>
+
+</body>
+
+</html>
