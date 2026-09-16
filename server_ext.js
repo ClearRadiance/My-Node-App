@@ -6,7 +6,7 @@ const PORT = 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 let visitorCount = 0;
-
+const ipRequestCounts = new Map();
 const fortunes = ["You'll finish your PWD project",
     "Your code will compile without errors",
     "You'll find a bug in your code today",
@@ -41,6 +41,31 @@ http.createServer((req, res) => {
     fs.appendFile(path.join(__dirname, 'server.log'), logline, (err) => {
         if (err) console.error('Log write failed', err);
     });
+
+    const now = Date.now();
+    const windowMs = 10000;
+    const maxRequests = 10;
+
+    for (const [ip, data] of ipRequestCounts) {
+        if (now > data.resetTime) {
+            ipRequestCounts.delete(ip);
+        }
+    }
+
+    const ipData = ipRequestCounts.get(clientIp) || { count: 0, resetTime: Date.now() + windowMs };
+
+    if (now > ipData.resetTime) {
+        ipData.count = 0;
+        ipData.resetTime = Date.now() + windowMs;
+    }
+
+    ipData.count++;
+    ipRequestCounts.set(clientIp, ipData);
+
+    if (ipData.count > maxRequests) {
+        res.writeHead(429, { 'Content-Type': 'text/html', 'Retry-After': '10' });
+        return res.end('<h1>Too Many Requests</h1>');
+    }
 
     if (reqPath === '/coffee') {
         res.writeHead(200, { 'Content-Type': 'text/html' });

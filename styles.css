@@ -1,0 +1,372 @@
+ @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Open+Sans:wght@400;500&display=swap');
+
+ * {
+     box-sizing: border-box
+ }
+
+ html {
+     scroll-behavior: smooth
+ }
+
+ body {
+     margin: 0;
+     background: #f8f6f1;
+     color: #26231f;
+     font-family: 'Open Sans', sans-serif
+ }
+
+ main {
+     width: 100%
+ }
+
+ h1,
+ h2 {
+     font-family: 'Cormorant Garamond', serif;
+     font-weight: 400
+ }
+
+ h1 {
+     margin: 0;
+     font-size: 5.5rem;
+     line-height: .95
+ }
+
+ h2 {
+     font-size: 2.2rem
+ }
+
+ p {
+     color: #625e58;
+     line-height: 1.7;
+     font-size: 15px
+ }
+
+ /* NAV */
+ nav {
+     width: 100%;
+     min-height: 75px;
+     padding: 25px 6%;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     gap: 42px;
+     background: #f8f6f1;
+     border-bottom: 1px solid #ddd8d0
+ }
+
+ nav a {
+     color: #26231f;
+     text-decoration: none;
+     font-size: 13px;
+     letter-spacing: .5px;
+     transition: .2s
+ }
+
+ nav a:hover {
+     color: #8b6f52
+ }
+
+ /* SHARED PAGES */
+ .home,
+ .projects,
+ .about {
+     width: 100%;
+     text-align: center
+ }
+
+ .home h1,
+ .projects h1,
+ .about h1 {
+     max-width: 1000px;
+     margin: 100px auto 25px;
+     padding: 0 20px
+ }
+
+ .projects h1,
+ .about h1 {
+     max-width: 900px
+ }
+
+ .home>p,
+ .intro {
+     max-width: 650px;
+     margin: 0 auto 55px;
+     padding: 0 20px
+ }
+
+ .home>p strong {
+     color: #26231f
+ }
+
+ /* SLIDESHOW */
+ #picture {
+     display: block;
+     width: 90%;
+     max-width: 1250px;
+     height: 600px;
+     margin: 0 auto;
+     object-fit: cover
+ }
+
+ .home .intro {
+     margin: 50px auto 110px
+ }
+
+ /* PROJECTS */
+ .projects .intro {
+     margin-bottom: 70px
+ }
+
+ .cards {
+     width: 88%;
+     max-width: 1150px;
+     margin: 0 auto 110px;
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 35px
+ }
+
+ .card,
+ .about-card {
+     background: #ebe6dd;
+     text-align: left;
+     padding: 50px
+ }
+
+ .card {
+     min-height: 300px;
+     transition: .25s
+ }
+
+ .card:hover {
+     transform: translateY(-5px)
+ }
+
+ .card h2,
+ .about-card h2 {
+     margin: 0 0 25px;
+     color: #26231f
+ }
+
+ .card p,
+ .about-card p {
+     margin: 0;
+     color: #625e58;
+     line-height: 1.8
+ }
+
+ /* ABOUT */
+ .about {
+     padding-bottom: 100px
+ }
+
+ .about .intro {
+     margin-bottom: 65px
+ }
+
+ .about-card {
+     width: 88%;
+     max-width: 1150px;
+     min-height: 280px;
+     margin: auto
+ }
+
+ .about-card p {
+     max-width: 750px
+ }
+
+ /* SHOUTBOX */
+ .shout-form,
+ .shoutbox {
+     width: 85%;
+     max-width: 750px;
+     margin: 45px auto
+ }
+
+ .shout-form {
+     display: flex;
+     gap: 12px
+ }
+
+ .shout-form input {
+     flex: 1;
+     padding: 15px 18px;
+     font: 14px 'Open Sans';
+     background: white;
+     color: #26231f;
+     border: 1px solid #d5d0c8;
+     outline: 0
+ }
+
+ .shout-form input:focus {
+     border-color: #8b6f52
+ }
+
+ .shout-form button {
+     padding: 15px 28px;
+     font: 13px 'Open Sans';
+     background: #26231f;
+     color: white;
+     border: 0;
+     cursor: pointer;
+     transition: .2s
+ }
+
+ .shout-form button:hover {
+     background: #8b6f52
+ }
+
+ .shoutbox {
+     margin: 45px auto 100px
+ }
+
+ .shoutbox ul {
+     padding: 0;
+     margin: 0;
+     list-style: none
+ }
+
+ .shoutbox li {
+     padding: 20px;
+     margin-bottom: 12px;
+     background: #ebe6dd;
+     text-align: left
+ }
+
+ /* DARK MODE */
+ body.dark-mode {
+     background: #1c1b19;
+     color: #f8f6f1
+ }
+
+ .dark-mode nav {
+     background: #1c1b19;
+     border-color: #44413c
+ }
+
+ .dark-mode nav a,
+ .dark-mode h1,
+ .dark-mode h2 {
+     color: #f8f6f1
+ }
+
+ .dark-mode nav a:hover {
+     color: #c7a77a
+ }
+
+ .dark-mode p {
+     color: #d0cbc3
+ }
+
+ .dark-mode p strong {
+     color: #f8f6f1
+ }
+
+ .dark-mode .card,
+ .dark-mode .about-card,
+ .dark-mode .shoutbox li {
+     background: #292724
+ }
+
+ .dark-mode .card h2,
+ .dark-mode .about-card h2 {
+     color: #f8f6f1
+ }
+
+ .dark-mode .card p,
+ .dark-mode .about-card p {
+     color: #d0cbc3
+ }
+
+ .dark-mode .shout-form input {
+     background: #292724;
+     color: #f8f6f1;
+     border-color: #504b45
+ }
+
+ .dark-mode .shout-form input:focus {
+     border-color: #c7a77a
+ }
+
+ .dark-mode .shout-form button {
+     background: #f8f6f1;
+     color: #26231f
+ }
+
+ .dark-mode .shout-form button:hover {
+     background: #c7a77a
+ }
+
+ .dark-mode .shoutbox li {
+     color: #f8f6f1
+ }
+
+ /* MOBILE */
+ @media(max-width:700px) {
+     nav {
+         padding: 18px 15px;
+         gap: 18px
+     }
+
+     nav a {
+         font-size: 12px
+     }
+
+     h1 {
+         font-size: 3.5rem
+     }
+
+     .home h1,
+     .projects h1,
+     .about h1 {
+         margin-top: 65px
+     }
+
+     #picture {
+         width: 92%;
+         height: 380px
+     }
+
+     .home .intro {
+         margin-bottom: 70px
+     }
+
+     .projects .intro,
+     .about .intro {
+         margin-bottom: 45px
+     }
+
+     .cards {
+         width: 90%;
+         grid-template-columns: 1fr;
+         gap: 20px
+     }
+
+     .card {
+         min-height: 220px;
+         padding: 30px
+     }
+
+     .about-card {
+         width: 90%;
+         padding: 30px
+     }
+
+     .about-card h2 {
+         font-size: 2rem
+     }
+
+     .shout-form {
+         width: 90%;
+         flex-direction: column
+     }
+
+     .shout-form input,
+     .shout-form button {
+         width: 100%
+     }
+
+     .shoutbox {
+         width: 90%
+     }
+ }
