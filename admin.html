@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="{{THEME_CLASS}}">
+    <h1>Admin Page for my Node.js</h1>
+    <p><strong>Total Home Page Visits:</strong>{{COUNT}}</p>
+    <div>
+        <h3>Danger Zone</h3>
+        <p>Wipe all public shoutbox entries stored in <code>messages.json</code></p>
+        <form action="/admin" method="GET">
+            <input type="hidden" name="action" value="clear">
+            <button type="submit" class="danger-button"
+                onclick="return confirm('Are you sure you want to clear the chat?')">
+                Clear all shoutbox messages</button>
+        </form>
+    </div>
+</body>
+
+</html>
