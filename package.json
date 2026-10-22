@@ -1,13 +1,11 @@
 {
-    "name": "web-server",
-    "version": "1.0.0",
-    "description": "My First WebServer",
-    "main": "server_ext.js",
-    "scripts": {
-        "start": "node server_ext.js"
-    },
-    "dependencies": {
-        "bad-words": "^4.1.5",
-        "mime-types": "^3.0.2"
-    }
+  "dependencies": {
+    "bad-words": "^4.1.5",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0"
+  }
 }

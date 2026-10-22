@@ -1,58 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="express_style.css">
+    <link rel="icon" type="image/png" href="./favicon.png">
+    <title>Express Server</title>
 </head>
 
 <body class="{{THEME_CLASS}}">
+    <main>
+        <header id="main-title">Express page for my node server.js</header>
 
-    <nav>
-        <a href="/">Home</a>
-        <a href="/projects.html">Projects</a>
-        <a href="/about.html">About</a>
-        <a href="/shoutbox.html">Shoutbox</a>
-        <a href="/?theme=dark">Dark Theme</a>
-        <a href="/?theme=light">Light Theme</a>
-        <a href="/api/stats">Stats</a>
-        <a href="/roll">Roll Dice</a>
-        <a href="/coffee">Coffee</a>
-    </nav>
+        <nav id="main-nav">
+            <a href="/" class="home-link">Home</a>
+            <!-- <a href="/projects" class="projects-link">Projects</a> -->
+            <a href="/guestbook" class="guestbook-link">Guestbook</a>
+            <a href="/dashboard" class="dashboard-link">Dashboard</a>
+            <a href="/space" class="space-link">NASA APOD</a>
+        </nav>
 
-    <main class="home">
+        <div id="status"></div>
+        <div id="login-section" class="login-section" hidden>
+            <h2 id="login-title">Login</h2>
+            <form id="login-form">
+                <label for="username">Username</label>
+                <input id="username" name="username" autocomplete="username" required>
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" placeholder="Password" required />
+                <label>
+                    <input type="checkbox" name="rememberMe">
+                    Remember me
+                </label>
+                <button type="submit">Login</button>
+                <p>New here? <a href="/register">Create an account</a></p>
+            </form>
+            <p id="login-message"></p>
+        </div>
+        <button id="logout-button" hidden>Logout</button>
+        <section id="server-overview">
 
-        <h1>Akira's server</h1>
-        <p>Welcome to My Node.js Server</p>
+            <div class="server-badge">
+                <span class="status-dot"></span>
+                NODE.JS SERVER
+            </div>
 
-        <p>
-            <strong>Total Home Page Visits:</strong> {{COUNT}}
-        </p>
+            <h2 id="overview-title">Server Overview</h2>
 
-        <!-- SLIDESHOW -->
-        <img id="picture" src="picture1.jpg" alt="Slideshow image">
+            <p id="overview-text">
+                A simple Express server with authentication, a guestbook,
+                sessions, and protected pages.
+            </p>
 
+            <div id="feature-grid">
 
+                <article class="feature-card">
+                    <h3>Express</h3>
+                    <p>Powered by Node.js and Express.</p>
+                </article>
+
+                <article class="feature-card">
+                    <h3>Authentication</h3>
+                    <p>Protected pages with session-based login.</p>
+                </article>
+
+                <article class="feature-card">
+                    <h3>Guestbook</h3>
+                    <p>Leave and view messages.</p>
+                </article>
+
+            </div>
+
+        </section>
+        <footer id="main-footer">
+            <p>Built with Node.js & Express</p>
+        </footer>
     </main>
 
-    <script>
-        let pictures = ["picture1.jpg", "picture2.jpg", "picture3.jpg"];
-        let i = 0;
-
-        setInterval(() => {
-            i++;
-
-            if (i == pictures.length) {
-                i = 0;
-            }
-
-            document.getElementById("picture").src = pictures[i];
-
-        }, 3000);
-    </script>
-
+    <script src="/js/login.js"></script>
+    <script src="/js/logout.js"></script>
 </body>
 
 </html>
