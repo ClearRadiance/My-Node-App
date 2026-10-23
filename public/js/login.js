@@ -1,5 +1,6 @@
+
 const status = document.querySelector('#status');
-const username = document.querySelector('#username').value;
+const username = document.querySelector('#username');
 const loginForm = document.querySelector('#login-form');
 const loginMessage = document.querySelector('#login-message');
 const loginSection = document.querySelector('#login-section');
@@ -12,9 +13,13 @@ async function checkAuthState() {
 
         if (data.loggedIn) {
             status.innerHTML = '';
+
             const heading = document.createElement('h1');
             heading.textContent = `Welcome back, ${data.username}!`;
             status.append(heading);
+
+            loginSection.hidden = true;
+            logoutButton.hidden = false;
         } else {
             status.innerHTML = '<h1>Welcome!</h1>';
 
@@ -43,6 +48,7 @@ loginForm.addEventListener('submit', async (event) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                username: username.value.trim(),
                 password,
                 rememberMe
             })
@@ -52,16 +58,16 @@ loginForm.addEventListener('submit', async (event) => {
             success: false
         }));
 
-        if (data.success) {
+        if (response.ok && data.success) {
             loginMessage.textContent = 'Login successful!';
             loginForm.reset();
 
             await checkAuthState();
 
-            window.location.href = data.redirect || '/';
+            window.location.href = data.redirect || '/dashboard';
         } else {
             loginMessage.textContent =
-                data.error || 'Login failed. Please check your password.';
+                data.error || 'Login failed. Please check your username and password.';
         }
     } catch (error) {
         console.error('Login error:', error);

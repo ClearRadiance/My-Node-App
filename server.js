@@ -460,8 +460,26 @@ app.post('/api/guestbook', requireAuth, async (req, res) => {
 });
 
 // Delete a guestbook entry
+
 app.delete('/api/guestbook/:id', requireAuth, async (req, res) => {
     try {
+        const entry = await db.getEntryById(req.params.id);
+
+        if (!entry) {
+            return res.status(404).json({
+                error: 'Entry not found.'
+            });
+        }
+
+        if (
+            req.session.role !== 'admin' &&
+            entry.userId !== req.session.userId
+        ) {
+            return res.status(403).json({
+                error: 'You can only delete your own messages.'
+            });
+        }
+
         const deleted = await db.deleteEntry(req.params.id);
 
         if (!deleted) {
@@ -480,6 +498,7 @@ app.delete('/api/guestbook/:id', requireAuth, async (req, res) => {
 });
 
 // Update a guestbook entry
+
 app.put('/api/guestbook/:id', requireAuth, async (req, res) => {
     try {
         const { name, msg } = req.body || {};
@@ -488,6 +507,23 @@ app.put('/api/guestbook/:id', requireAuth, async (req, res) => {
         if (validationError) {
             return res.status(400).json({
                 error: validationError
+            });
+        }
+
+        const entry = await db.getEntryById(req.params.id);
+
+        if (!entry) {
+            return res.status(404).json({
+                error: 'Entry not found.'
+            });
+        }
+
+        if (
+            req.session.role !== 'admin' &&
+            entry.userId !== req.session.userId
+        ) {
+            return res.status(403).json({
+                error: 'You can only edit your own messages.'
             });
         }
 
@@ -510,6 +546,7 @@ app.put('/api/guestbook/:id', requireAuth, async (req, res) => {
         });
     }
 });
+
 
 // ==========================================
 // LANDING PAGE AND PROJECTS
