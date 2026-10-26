@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 
 const db = require('./db.js');
@@ -22,7 +21,9 @@ const REQUIRED_ENV = [
 
 for (const name of REQUIRED_ENV) {
     if (!process.env[name]) {
-        console.error(`Missing ${name} in .env (or in Render's Environment settings)`);
+        console.error(
+            `Missing ${name} in .env (or in Render's Environment settings)`
+        );
         process.exit(1);
     }
 }
@@ -52,7 +53,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
-            imgSrc: ["'self'", 'data:', 'https://assets.science.nasa.gov']
+            imgSrc: [
+                "'self'",
+                'data:',
+                'https://assets.science.nasa.gov'
+            ]
         }
     }
 }));
@@ -72,16 +77,22 @@ app.use(session({
 }));
 
 // Trim the log file if it gets too large
-if (fs.existsSync(LOG_FILE) && fs.statSync(LOG_FILE).size > 128 * 1024) {
+if (
+    fs.existsSync(LOG_FILE) &&
+    fs.statSync(LOG_FILE).size > 128 * 1024
+) {
     const recentLines = fs.readFileSync(LOG_FILE, 'utf8')
         .split('\n')
         .slice(-10);
+
     fs.writeFileSync(LOG_FILE, recentLines.join('\n'));
 }
 
 // Log requests
 app.use((req, res, next) => {
-    const logLine = `[${new Date().toISOString()}] ${req.method} ${req.path}\n`;
+    const logLine =
+        `[${new Date().toISOString()}] ${req.method} ${req.path}\n`;
+
     console.log(logLine.trim());
 
     fs.appendFile(LOG_FILE, logLine, err => {
@@ -97,7 +108,9 @@ const limiter = rateLimit({
     limit: 100,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { error: 'Too many requests. Please wait 10 seconds.' }
+    message: {
+        error: 'Too many requests. Please wait 10 seconds.'
+    }
 });
 
 app.use(limiter);
@@ -118,12 +131,16 @@ app.use((req, res, next) => {
     if (MAINTENANCE_MODE) {
         return res.status(503).send('Maintenance Mode.');
     }
+
     next();
 });
 
 // Validate username and password
 function validateCredentials(username, password) {
-    if (typeof username !== 'string' || typeof password !== 'string') {
+    if (
+        typeof username !== 'string' ||
+        typeof password !== 'string'
+    ) {
         return 'Username and password must be text.';
     }
 
@@ -140,7 +157,10 @@ function validateCredentials(username, password) {
 
 // Validate guestbook entries
 function validateEntry(name, msg) {
-    if (typeof name !== 'string' || typeof msg !== 'string') {
+    if (
+        typeof name !== 'string' ||
+        typeof msg !== 'string'
+    ) {
         return 'Name and message must be text.';
     }
 
@@ -172,7 +192,10 @@ function startSession(req, user, rememberMe = false) {
             req.session.role = user.role || 'user';
             req.session.isAuthenticated = true;
 
-            if (rememberMe === true || rememberMe === 'true') {
+            if (
+                rememberMe === true ||
+                rememberMe === 'true'
+            ) {
                 req.session.cookie.maxAge =
                     7 * 24 * 60 * 60 * 1000;
             } else {
@@ -241,7 +264,9 @@ app.post('/register', authLimiter, async (req, res) => {
         }
 
         const cleanName = username.trim().toLowerCase();
-        const existingUser = await db.getUserByUsername(cleanName);
+
+        const existingUser =
+            await db.getUserByUsername(cleanName);
 
         if (existingUser) {
             return res.status(409).json({
@@ -281,10 +306,12 @@ app.post('/login', authLimiter, async (req, res) => {
     try {
         const { username, password, rememberMe } = req.body || {};
 
-        if (typeof username !== 'string' ||
+        if (
+            typeof username !== 'string' ||
             typeof password !== 'string' ||
             !username.trim() ||
-            !password) {
+            !password
+        ) {
             return res.status(400).json({
                 error: 'Username and password are required.'
             });
@@ -295,7 +322,10 @@ app.post('/login', authLimiter, async (req, res) => {
         );
 
         const passwordOk =
-            user && await bcrypt.compare(password, user.passwordHash);
+            user && await bcrypt.compare(
+                password,
+                user.passwordHash
+            );
 
         if (!passwordOk) {
             return res.status(401).json({
@@ -332,12 +362,14 @@ app.post('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) {
             console.error('Logout error:', err);
+
             return res.status(500).json({
                 error: 'Could not log out.'
             });
         }
 
         res.clearCookie('station.sid');
+
         return res.json({ success: true });
     });
 });
@@ -385,7 +417,6 @@ if (!isProduction) {
 // DASHBOARD
 // ==========================================
 
-// Admin-only dashboard, matching your existing setup
 app.get('/dashboard', requireLoginPage, (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, 'dashboard.html'));
 });
@@ -405,7 +436,10 @@ app.get('/api/guestbook', requireAuth, async (req, res) => {
         res.json(entries);
     } catch (err) {
         console.error('Guestbook read error:', err);
-        res.status(500).json({ error: 'Could not load guestbook.' });
+
+        res.status(500).json({
+            error: 'Could not load guestbook.'
+        });
     }
 });
 
@@ -423,7 +457,10 @@ app.get('/api/guestbook/:id', requireAuth, async (req, res) => {
         res.json(entry);
     } catch (err) {
         console.error('Guestbook entry error:', err);
-        res.status(500).json({ error: 'Could not load entry.' });
+
+        res.status(500).json({
+            error: 'Could not load entry.'
+        });
     }
 });
 
@@ -431,6 +468,7 @@ app.get('/api/guestbook/:id', requireAuth, async (req, res) => {
 app.post('/api/guestbook', requireAuth, async (req, res) => {
     try {
         const { name, msg } = req.body || {};
+
         const validationError = validateEntry(name, msg);
 
         if (validationError) {
@@ -447,20 +485,21 @@ app.post('/api/guestbook', requireAuth, async (req, res) => {
 
         const entry = await db.addEntry({
             name: name.trim(),
-            msg: msg.trim()
+            msg: msg.trim(),
+            userId: req.session.userId
         });
 
-        res.status(201).json(entry);
+        return res.status(201).json(entry);
     } catch (err) {
         console.error('Guestbook create error:', err);
-        res.status(500).json({
+
+        return res.status(500).json({
             error: 'Could not create entry.'
         });
     }
 });
 
 // Delete a guestbook entry
-
 app.delete('/api/guestbook/:id', requireAuth, async (req, res) => {
     try {
         const entry = await db.getEntryById(req.params.id);
@@ -471,10 +510,12 @@ app.delete('/api/guestbook/:id', requireAuth, async (req, res) => {
             });
         }
 
-        if (
-            req.session.role !== 'admin' &&
-            entry.userId !== req.session.userId
-        ) {
+        const isAdmin = req.session.role === 'admin';
+
+        const ownsEntry =
+            String(entry.userId) === String(req.session.userId);
+
+        if (!isAdmin && !ownsEntry) {
             return res.status(403).json({
                 error: 'You can only delete your own messages.'
             });
@@ -488,25 +529,28 @@ app.delete('/api/guestbook/:id', requireAuth, async (req, res) => {
             });
         }
 
-        res.status(204).end();
+        return res.json({ success: true });
     } catch (err) {
         console.error('Guestbook delete error:', err);
-        res.status(500).json({
+
+        return res.status(500).json({
             error: 'Could not delete entry.'
         });
     }
 });
 
 // Update a guestbook entry
-
 app.put('/api/guestbook/:id', requireAuth, async (req, res) => {
     try {
-        const { name, msg } = req.body || {};
-        const validationError = validateEntry(name, msg);
+        const { msg } = req.body || {};
 
-        if (validationError) {
+        if (
+            typeof msg !== 'string' ||
+            msg.trim().length < 1 ||
+            msg.trim().length > 280
+        ) {
             return res.status(400).json({
-                error: validationError
+                error: 'Message must be between 1 and 280 characters.'
             });
         }
 
@@ -518,17 +562,19 @@ app.put('/api/guestbook/:id', requireAuth, async (req, res) => {
             });
         }
 
-        if (
-            req.session.role !== 'admin' &&
-            entry.userId !== req.session.userId
-        ) {
+        const isAdmin = req.session.role === 'admin';
+
+        const ownsEntry =
+            String(entry.userId) === String(req.session.userId);
+
+        if (!isAdmin && !ownsEntry) {
             return res.status(403).json({
                 error: 'You can only edit your own messages.'
             });
         }
 
         const updated = await db.updateEntry(req.params.id, {
-            name: name.trim(),
+            name: entry.name,
             msg: msg.trim()
         });
 
@@ -538,15 +584,15 @@ app.put('/api/guestbook/:id', requireAuth, async (req, res) => {
             });
         }
 
-        res.json(updated);
+        return res.json(updated);
     } catch (err) {
         console.error('Guestbook update error:', err);
-        res.status(500).json({
+
+        return res.status(500).json({
             error: 'Could not update entry.'
         });
     }
 });
-
 
 // ==========================================
 // LANDING PAGE AND PROJECTS
@@ -554,13 +600,21 @@ app.put('/api/guestbook/:id', requireAuth, async (req, res) => {
 
 app.get('/', (req, res) => {
     visitorCount++;
-    console.log(`Visit #${visitorCount}: someone viewed the landing page`);
+
+    console.log(
+        `Visit #${visitorCount}: someone viewed the landing page`
+    );
+
     res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
 
 app.get('/projects', (req, res) => {
     visitorCount++;
-    console.log(`Visit #${visitorCount}: someone viewed the projects page`);
+
+    console.log(
+        `Visit #${visitorCount}: someone viewed the projects page`
+    );
+
     res.sendFile(path.join(PUBLIC_DIR, 'projects.html'));
 });
 
@@ -571,15 +625,19 @@ app.get('/projects', (req, res) => {
 function validateApodDate(date) {
     if (date === undefined) return null;
 
-    if (typeof date !== 'string' ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    if (
+        typeof date !== 'string' ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(date)
+    ) {
         return 'Date must look like YYYY-MM-DD.';
     }
 
     const parsed = new Date(date + 'T00:00:00Z');
 
-    if (isNaN(parsed) ||
-        parsed.toISOString().slice(0, 10) !== date) {
+    if (
+        isNaN(parsed) ||
+        parsed.toISOString().slice(0, 10) !== date
+    ) {
         return 'That is not a real date.';
     }
 
@@ -599,10 +657,13 @@ function validateApodDate(date) {
 app.get('/api/space', async (req, res) => {
     try {
         const { date } = req.query;
+
         const dateError = validateApodDate(date);
 
         if (dateError) {
-            return res.status(400).json({ error: dateError });
+            return res.status(400).json({
+                error: dateError
+            });
         }
 
         const cacheKey = date || 'today';
@@ -610,14 +671,18 @@ app.get('/api/space', async (req, res) => {
 
         const isFresh =
             cacheKey !== 'today' ||
-            (cached && Date.now() - cached.savedAt < TODAY_MAX_AGE);
+            (
+                cached &&
+                Date.now() - cached.savedAt < TODAY_MAX_AGE
+            );
 
         if (cached && isFresh) {
             console.log('Cache hit:', cacheKey);
             return res.json(cached.data);
         }
 
-        let address = 'https://science.nasa.gov/wp-json/wp/v2/apod-basic/';
+        let address =
+            'https://science.nasa.gov/wp-json/wp/v2/apod-basic/';
 
         if (date) {
             const shortDate = date.slice(2).replaceAll('-', '');
@@ -625,7 +690,11 @@ app.get('/api/space', async (req, res) => {
         }
 
         const nasaUrl = new URL(address);
-        nasaUrl.searchParams.set('api_key', process.env.NASA_API_KEY);
+
+        nasaUrl.searchParams.set(
+            'api_key',
+            process.env.NASA_API_KEY
+        );
 
         const nasaResponse = await fetch(nasaUrl, {
             signal: AbortSignal.timeout(8000)
@@ -639,6 +708,7 @@ app.get('/api/space', async (req, res) => {
 
         if (!nasaResponse.ok) {
             console.error('NASA error:', nasaResponse.status);
+
             return res.status(502).json({
                 error: 'NASA could not send a picture right now.'
             });
@@ -671,10 +741,11 @@ app.get('/api/space', async (req, res) => {
             apodCache.delete(oldestKey);
         }
 
-        res.json(result);
+        return res.json(result);
     } catch (err) {
         console.error('NASA request error:', err);
-        res.status(502).json({
+
+        return res.status(502).json({
             error: 'Could not retrieve NASA picture. Try again later.'
         });
     }
@@ -695,10 +766,14 @@ app.use(express.static(PUBLIC_DIR, {
 
 app.use((req, res) => {
     if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ error: 'Not found' });
+        return res.status(404).json({
+            error: 'Not found'
+        });
     }
 
-    res.status(404).sendFile(path.join(PUBLIC_DIR, '404.html'));
+    res.status(404).sendFile(
+        path.join(PUBLIC_DIR, '404.html')
+    );
 });
 
 // ==========================================
@@ -724,12 +799,15 @@ app.use((err, req, res, next) => {
     }
 
     const status = err.status || 500;
+
     const message = status < 500
         ? err.message
         : 'Something went wrong on our end.';
 
     if (req.path.startsWith('/api/')) {
-        return res.status(status).json({ error: message });
+        return res.status(status).json({
+            error: message
+        });
     }
 
     res.status(status).send(

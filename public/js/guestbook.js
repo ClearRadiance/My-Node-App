@@ -1,21 +1,27 @@
+
+let currentUser = null;
+
 async function deleteEntry(id) {
     if (!confirm('Delete this message?')) return;
 
     const listError = document.querySelector('#list-error');
+    listError.textContent = '';
 
     try {
-        const response = await fetch(`/api/guestbook/${encodeURIComponent(id)}`, {
-            method: 'DELETE'
-        });
+        const response = await fetch(
+            `/api/guestbook/${encodeURIComponent(id)}`,
+            { method: 'DELETE' }
+        );
+
+        const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-            const data = await response.json().catch(() => ({}));
             listError.textContent =
                 data.error || 'Could not delete that message.';
             return;
         }
 
-        loadMessages();
+        await loadMessages();
     } catch (err) {
         listError.textContent =
             'Could not reach the server. Check your connection.';
@@ -24,27 +30,36 @@ async function deleteEntry(id) {
 
 async function saveEdit(entry, newMsg) {
     const listError = document.querySelector('#list-error');
+    listError.textContent = '';
+
+    if (!newMsg.trim() || newMsg.trim().length > 280) {
+        listError.textContent =
+            'Message must be between 1 and 280 characters.';
+        return;
+    }
 
     try {
-        const response = await fetch(`/api/guestbook/${encodeURIComponent(entry.id)}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: entry.name,
-                msg: newMsg
-            })
-        });
+        const response = await fetch(
+            `/api/guestbook/${encodeURIComponent(entry.id)}`,
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: entry.name,
+                    msg: newMsg.trim()
+                })
+            }
+        );
+
+        const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-            const data = await response.json().catch(() => ({}));
             listError.textContent =
                 data.error || 'Could not save your changes.';
             return;
         }
 
-        loadMessages();
+        await loadMessages();
     } catch (err) {
         listError.textContent =
             'Could not reach the server. Check your connection.';
@@ -61,9 +76,9 @@ function startEdit(li, entry) {
     const saveButton = document.createElement('button');
     saveButton.type = 'button';
     saveButton.textContent = 'Save';
-    saveButton.addEventListener('click', () =>
-        saveEdit(entry, textarea.value)
-    );
+    saveButton.addEventListener('click', () => {
+        saveEdit(entry, textarea.value);
+    });
 
     const cancelButton = document.createElement('button');
     cancelButton.type = 'button';
@@ -71,7 +86,6 @@ function startEdit(li, entry) {
     cancelButton.addEventListener('click', loadMessages);
 
     li.append(textarea, saveButton, cancelButton);
-
     textarea.focus();
 }
 
@@ -80,10 +94,15 @@ async function loadMessages() {
     listError.textContent = '';
 
     try {
+        const authResponse = await fetch('/api/whoami');
+        const authData = await authResponse.json().catch(() => ({}));
+
+        currentUser = authData.loggedIn ? authData : null;
+
         const response = await fetch('/api/guestbook');
         const data = await response.json().catch(() => ({}));
 
-        if (!response.ok) {
+        if (!response.ok || !Array.isArray(data)) {
             listError.textContent =
                 data.error || 'Could not load messages.';
             return;
@@ -113,65 +132,70 @@ async function loadMessages() {
                 li.append(edited);
             }
 
-            const editButton = document.createElement('button');
-            editButton.type = 'button';
-            editButton.textContent = 'Edit';
-            editButton.addEventListener('click', () =>
-                startEdit(li, entry)
-            );
+            const isAdmin = currentUser?.role === 'admin';
+            const ownsEntry =
+                currentUser &&
+                String(entry.userId) === String(currentUser.userId);
 
-            const deleteButton = document.createElement('button');
-            deleteButton.type = 'button';
-            deleteButton.textContent = 'Delete';
-            deleteButton.addEventListener('click', () =>
-                deleteEntry(entry.id)
-            );
+            if (isAdmin || ownsEntry) {
+                const editButton = document.createElement('button');
+                editButton.type = 'button';
+                editButton.textContent = 'Edit';
+                editButton.addEventListener('click', () => {
+                    startEdit(li, entry);
+                });
 
-            li.append(editButton, deleteButton);
+                const deleteButton = document.createElement('button');
+                deleteButton.type = 'button';
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => {
+                    deleteEntry(entry.id);
+                });
+
+                li.append(editButton, deleteButton);
+            }
 
             list.append(li);
         });
-
     } catch (err) {
         listError.textContent =
             'Could not reach the server. Check your connection.';
     }
 }
 
-document.querySelector('#guestbook-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+document.querySelector('#guestbook-form').addEventListener(
+    'submit',
+    async event => {
+        event.preventDefault();
 
-    const errorBox = document.querySelector('#form-error');
-    errorBox.textContent = '';
+        const errorBox = document.querySelector('#form-error');
+        errorBox.textContent = '';
 
-    try {
-        const response = await fetch('/api/guestbook', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: document.querySelector('#name').value,
-                msg: document.querySelector('#msg').value
-            })
-        });
+        try {
+            const response = await fetch('/api/guestbook', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: document.querySelector('#name').value,
+                    msg: document.querySelector('#msg').value
+                })
+            });
 
-        if (!response.ok) {
             const data = await response.json().catch(() => ({}));
 
+            if (!response.ok) {
+                errorBox.textContent =
+                    data.error || 'Something went wrong. Please try again.';
+                return;
+            }
+
+            event.target.reset();
+            await loadMessages();
+        } catch (err) {
             errorBox.textContent =
-                data.error || 'Something went wrong. Please try again.';
-            return;
+                'Could not reach the server. Check your connection.';
         }
-
-    } catch (err) {
-        errorBox.textContent =
-            'Could not reach the server. Check your connection.';
-        return;
     }
-
-    e.target.reset();
-    loadMessages();
-});
+);
 
 loadMessages();
