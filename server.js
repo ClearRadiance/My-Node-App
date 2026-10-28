@@ -112,6 +112,14 @@ const limiter = rateLimit({
         error: 'Too many requests. Please wait 10 seconds.'
     }
 });
+const postLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 3,
+    keyGenerator: (req) => req.session.userId,
+    message: {
+        error: 'Too many posts. Please wait a minute.'
+    }
+})
 
 app.use(limiter);
 
